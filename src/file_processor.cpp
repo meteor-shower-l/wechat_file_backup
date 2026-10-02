@@ -5,18 +5,15 @@
 #include <thread>
 #include <utility>
 
-namespace
-{
-constexpr std::chrono::milliseconds stability_interval(300);
-}
-
 FileProcessor::FileProcessor(
     std::filesystem::path source_root,
     std::filesystem::path backup_root,
-    std::chrono::milliseconds retention_time)
+        std::chrono::seconds retention_time,
+        std::chrono::milliseconds stability_interval)
     : source_root_(std::move(source_root)),
       backup_root_(std::move(backup_root)),
-      retention_time_(retention_time)
+            retention_time_(retention_time),
+            stability_interval_(stability_interval)
 {
 }
 
@@ -41,7 +38,7 @@ bool FileProcessor::wait_until_stable(
 
     for (;;)
     {
-        std::this_thread::sleep_for(stability_interval);
+        std::this_thread::sleep_for(stability_interval_);
 
         std::uintmax_t current_size =
             std::filesystem::file_size(source_path, error);

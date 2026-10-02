@@ -1,23 +1,27 @@
-#include "watcher.hpp"
+#include "config.hpp"
 #include "file_processor.hpp"
+#include "watcher.hpp"
 
-#include <chrono>
 #include <iostream>
 #include <thread>
 
-int main()
+int main(int argc, char *argv[])
 {
 	try
 	{
-		FileQueue file_queue;
-		std::filesystem::path source_root = L"C:\\xwechat_files";
-		std::filesystem::path backup_root = L"D:\\wechat_backup";
+		std::filesystem::path config_path =
+			argc > 1 ? std::filesystem::path(argv[1]) :
+			std::filesystem::path("config.json");
+		AppConfig config = load_config(config_path);
 
-		WechatFileWatcher watcher(source_root, file_queue);
+		FileQueue file_queue;
+
+		WechatFileWatcher watcher(config.source_root, file_queue);
 		FileProcessor processor(
-			source_root,
-			backup_root,
-			std::chrono::minutes(2));
+			config.source_root,
+			config.backup_root,
+			config.retention_time,
+			config.stability_interval);
 
 		std::thread watcher_thread(&WechatFileWatcher::watch, &watcher);
 		std::thread cleanup_thread(&FileProcessor::cleanup, &processor);
