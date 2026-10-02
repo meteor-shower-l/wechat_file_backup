@@ -1,0 +1,6 @@
+{
+    "source_root": "C:/xwechat_files",
+    "backup_root": "D:/wechat_backup",
+    "retention_seconds": 120,
+    "stability_interval_milliseconds": 300
+}
